@@ -8,7 +8,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.sql.SQLContext
 
 /**
- * Created by Lewis Gavin
+ * Created by Lewis Gavin 06/09/2016
  *
  */
 case object SarcasmDetector {
