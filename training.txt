@@ -1,6 +1,4 @@
 1, "hmrc you've done it again just marvelous"
-1, "really rate that new webchat service... not!"
 1, "you should all check out the new webchat service if you really want to be wow'd. Useless!"
 0, "Love the new hmrc webchat service"
 0, "Just used webchat and it was great"
-0, "Didnt like the webchat service was not very helpful"

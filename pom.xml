@@ -3,8 +3,31 @@
   <groupId>com.cap</groupId>
   <artifactId>SarcasmDetector</artifactId>
   <version>1.0-SNAPSHOT</version>
+
+
+  <repositories>
+  <repository>
+    <id>localrepository</id>
+    <name>Local Repository</name>
+    <url>file://${project.basedir}/libs</url>
+  </repository>
+
+      <repository>
+          <id>apache-repo</id>
+          <name>Apache Repository</name>
+          <url>https://repository.apache.org/content/repositories/releases</url>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+          <snapshots>
+              <enabled>false</enabled>
+          </snapshots>
+      </repository>
+
+  </repositories>
   <build>
     <plugins>
+
       <plugin>
         <groupId>org.scala-tools</groupId>
         <version>2.15.2</version>
@@ -40,6 +63,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.cap</groupId>
+      <artifactId>text-sent-analytics</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
       <version>2.10.3</version>
@@ -65,6 +93,17 @@
       <artifactId>spark-mllib_2.10</artifactId>
       <version>1.6.0</version>
     </dependency>
+      <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-streaming-twitter_2.10 -->
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-streaming-twitter_2.10</artifactId>
+      <version>1.6.0</version>
+    </dependency>
+      <dependency> <!-- Spark streaming dependency -->
+          <groupId>org.apache.spark</groupId>
+          <artifactId>spark-streaming_2.10</artifactId>
+          <version>1.6.0</version>
+      </dependency>
 
   </dependencies>
 
