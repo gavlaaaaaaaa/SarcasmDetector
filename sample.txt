@@ -1,2 +1,2 @@
-1, "really rate that new webchat service... not!"
-0, "Didnt like the webchat service was not very helpful"
+1, "really rate that new application... not!"
+0, "Didnt like the new app was not very helpful"

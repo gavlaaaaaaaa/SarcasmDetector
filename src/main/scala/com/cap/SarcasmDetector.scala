@@ -1,11 +1,10 @@
 package com.cap
 
+import com.cap.TextSentAnalytics.{getNgram, standardiseString}
 import org.apache.spark.SparkContext
-import org.apache.spark.ml.feature.Word2Vec
-import org.apache.spark.mllib.classification.NaiveBayes
-import org.apache.spark.mllib.linalg.Vectors
-import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.sql.SQLContext
+import org.apache.spark.streaming.twitter._
+import org.apache.spark.streaming.{Seconds, StreamingContext};
 
 /**
  * Created by Lewis Gavin 06/09/2016
@@ -24,36 +23,36 @@ case object SarcasmDetector {
     val sc = new SparkContext()
     val sqlContext = new SQLContext(sc)
 
-    /*
-    val ssc = new StreamingContext(sc, Seconds(5))
+
+    val ssc = new StreamingContext(sc, Seconds(30))
 
     System.setProperty("twitter4j.oauth.consumerKey", consumerKey)
     System.setProperty("twitter4j.oauth.consumerSecret", consumerSecret)
     System.setProperty("twitter4j.oauth.accessToken", accessToken)
     System.setProperty("twitter4j.oauth.accessTokenSecret", accessTokenSecret)
 
-    val stream = TwitterUtils.createStream(ssc, None)
+    val stream = TwitterUtils.createStream(ssc, None, Seq("sarcastic"))
 
     //extract sarcastic tweets and standardise the string
     val sarcasmTweets = stream.filter {tweets =>
       val tags = tweets.getText.split(" ").filter(_.startsWith("#")).map(_.toLowerCase)
-      tags.contains("#sarcasm")
-    }.map(tweet => standardiseString(tweet.getText.replace("sarcasm","")))
+      tags.contains("#sarcastic")
+    }.map(tweet => standardiseString(tweet.getText.replace("sarcastic","")))
       .map(tweet => (1, getNgram(tweet, 2)))
 
     //extract non sarcastic tweets and standardise the string
     val tweets = stream.filter {t =>
       val tags = t.getText.split(" ").filter(_.startsWith("#")).map(_.toLowerCase)
-      !tags.contains("#sarcasm")
+      !tags.contains("#sarcastic")
     }.map(tweet => standardiseString(tweet.getText))
       .map(tweet => (0, getNgram(tweet, 2)))
-
 
     sarcasmTweets.foreachRDD(rdd => rdd.take(5).foreach(println))
 
     ssc.start()
     ssc.awaitTermination()
-    */
+
+    /*
 
     //read the file into a data frame
     val trainingDF = sqlContext.createDataFrame(sc.textFile(args(0)).map(input => input.split(",")).map(x => (x(0),x(1).split(" ")))).toDF("label","text")
@@ -64,7 +63,7 @@ case object SarcasmDetector {
     val word2Vec = new Word2Vec()
       .setInputCol("text")
       .setOutputCol("result")
-      .setVectorSize(3)
+      .setVectorSize(4)
       .setMinCount(0)
     val training = word2Vec.fit(trainingDF).transform(trainingDF)
     val nonTraining = word2Vec.fit(nonTrainedDF).transform(nonTrainedDF)
@@ -93,6 +92,8 @@ case object SarcasmDetector {
     // Save and load model
    // model.save(sc, "target/tmp/myNaiveBayesModel")
     //val sameModel = NaiveBayesModel.load(sc, "target/tmp/myNaiveBayesModel")
+
+    */
 
   }
 }
