@@ -2,6 +2,10 @@ package com.cap
 
 import com.cap.TextSentAnalytics.{getNgram, standardiseString}
 import org.apache.spark.SparkContext
+import org.apache.spark.ml.feature.Word2Vec
+import org.apache.spark.mllib.classification.NaiveBayes
+import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.twitter._
 import org.apache.spark.streaming.{Seconds, StreamingContext};
@@ -33,6 +37,7 @@ case object SarcasmDetector {
 
     val stream = TwitterUtils.createStream(ssc, None, Seq("sarcastic"))
 
+
     //extract sarcastic tweets and standardise the string
     val sarcasmTweets = stream.filter {tweets =>
       val tags = tweets.getText.split(" ").filter(_.startsWith("#")).map(_.toLowerCase)
@@ -47,7 +52,34 @@ case object SarcasmDetector {
     }.map(tweet => standardiseString(tweet.getText))
       .map(tweet => (0, getNgram(tweet, 2)))
 
-    sarcasmTweets.foreachRDD(rdd => rdd.take(5).foreach(println))
+    sarcasmTweets.union(tweets).foreachRDD{rdd =>
+      val tweetDF = rdd.toDF("label", "text")
+      val word2Vec = new Word2Vec()
+        .setInputCol("text")
+        .setOutputCol("result")
+        .setVectorSize(5)
+        .setMinCount(0)
+      val tweetVec = word2Vec.fit(tweetDF).transform(tweetDF)
+
+      // create a labelled point from the label and vector (each number in the vector needs to be converted to its absolute value as Naive Bayes doesnt accept negatives)l
+      val labelledPoints = tweetVec.map { line =>
+        LabeledPoint(line.getAs[String]("label").toDouble, Vectors.dense(line.getAs[org.apache.spark.mllib.linalg.Vector]("result").toDense.toArray.map(a => Math.abs(a))))
+      }
+
+      //get a random split of all the data
+      val splits = labelledPoints.randomSplit(Array(0.6, 0.4), seed = 11L)
+
+      val trainingData = splits(0)
+      val nonTrainData = splits(1)
+
+      val model = NaiveBayes.train(trainingData, lambda = 1.0, modelType = "multinominal")
+      val predictionAndLabel = nonTrainData.map(p => (model.predict(p.features), p.label))
+
+      val accuracy = 1.0 * predictionAndLabel.filter(x => x._1 == x._2).count() / nonTrainData.count()
+
+
+
+    }
 
     ssc.start()
     ssc.awaitTermination()
